@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Player Universal</title>
+    <!-- Plyr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #38bdf8;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #0284c7;
+        }
+        .player-container {
+            margin-top: 20px;
+        }
+        video {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .instructions {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Gerador de Player Universal</h1>
+        
+        <div class="input-group">
+            <input type="text" id="videoUrl" placeholder="Cole o link direto ou link do Google Drive aqui..." />
+            <button onclick="carregarPlayer()">Carregar Player</button>
+        </div>
+        
+        <div class="instructions">
+            * <strong>Links suportados:</strong> MP4, WebM, M3U8 (HLS) e arquivos do <strong>Google Drive</strong> (certifique-se de que o arquivo esteja configurado como "Qualquer pessoa com o link pode ver").
+        </div>
+
+        <div class="player-container">
+            <video id="player" playsinline controls>
+                Seu navegador não suporta reprodução de vídeo.
+            </video>
+        </div>
+    </div>
+
+    <!-- Plyr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.js"></script>
+    <script>
+        // Inicializa o player Plyr
+        const player = new Plyr('#player');
+
+        function converterGoogleDrive(url) {
+            // Regex para extrair o ID do arquivo do Google Drive de vários formatos de URL
+            const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                const fileId = match[1];
+                // Retorna um link de exportação direta do Google Drive
+                return `https://docs.google.com/uc?export=download&id=${fileId}`;
+            }
+            return url; // Retorna o link original se não for do Google Drive
+        }
+
+        function carregarPlayer() {
+            let rawUrl = document.getElementById('videoUrl').value.trim();
+            if (!rawUrl) {
+                alert('Por favor, insira um link válido.');
+                return;
+            }
+
+            // Trata o link caso seja do Google Drive
+            const finalUrl = converterGoogleDrive(rawUrl);
+
+            // Atualiza a fonte do player
+            player.source = {
+                type: 'video',
+                sources: [
+                    {
+                        src: finalUrl,
+                        provider: 'html5',
+                    },
+                ],
+            };
+            
+            player.play();
+        }
+    </script>
+</body>
+</html>
